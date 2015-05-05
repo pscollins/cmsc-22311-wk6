@@ -6,14 +6,16 @@ import Control.Applicative
 import Control.Monad
 import Language.Haskell.TH
 
+mkExp' :: ExpQ -> [Name] -> ExpQ
+mkExp' acc [] = acc
+mkExp' acc (name:names) = mkExp' [| $(acc) <*> ZipList $(varE name) |] names
 
-mkExp :: [Name] -> ExpQ
-mkExp (name:[]) = [| ZipList $(varE name) |]
-mkExp (name:names) = [| ZipList $(varE name) <*> $(mkExp names) |]
-
-zipN :: Int -> ExpQ
-zipN n = do
-  names <- mapM newName $ replicate n "x"
+zipWithN :: Int -> ExpQ
+zipWithN n = do
+  names@(n:ns) <- mapM newName $ replicate n "x"
   fn <- newName "f"
   let vps = map varP (fn:names)
-  lamE vps $ [| $(varE fn) <$> $(mkExp names) |]
+  lamE vps $ [| getZipList $(mkExp' [| $(varE fn) <$> ZipList $(varE n) |] ns) |]
+
+-- zipWithN :: Int -> ExpQ
+-- zipWithN n = [| $(zipN n) |]
