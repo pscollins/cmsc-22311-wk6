@@ -3,6 +3,7 @@
 import ZipN
 
 main = do
-  print $ $(zip2) [1..10] [2..20]
-  print $ $(zipWith2) (+) [1..10] [10..20]
-  print $ $(zipWith2') (+) [1..10] [10..20]
+  let vs = $(zipN 1) id [1..10]
+  let vs' = $(zipN 2) id [1..10] [2..30]
+  let vs'' = $(zipN 3) id [1..10] [2..30] [4..50]
+  return ()
